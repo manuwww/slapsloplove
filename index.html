@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlapSlop.Love</title>
+    <style>
+        :root {
+            --primary: #ff5e62; /* Coral red */
+            --secondary: #0ab4b4; /* Teal */
+            --background: #f5f5f5; /* Light mode background */
+            --card-bg: #ffffff; /* Light mode card */
+            --text: #333333; /* Light mode text */
+            --accent: #ffd700; /* Gold accent */
+            --shadow: rgba(0, 0, 0, 0.1);
+            --overlay: rgba(0, 0, 0, 0.7);
+        }
+        [data-theme="dark"] {
+            --background: #121212; /* Dark mode background */
+            --card-bg: #1e1e1e; /* Dark mode card */
+            --text: #e0e0e0; /* Dark mode text */
+            --shadow: rgba(0, 0, 0, 0.4);
+            --overlay: rgba(0, 0, 0, 0.8);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+            overscroll-behavior: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+        .search {
+            flex: 1;
+            margin: 0 10px;
+        }
+        .search input {
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 20px;
+            background: var(--background);
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+        .social-icons {
+            display: flex;
+            gap: 10px;
+        }
+        .social-icons a {
+            color: var(--text);
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .social-icons a:hover {
+            color: var(--primary);
+        }
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text);
+            margin-left: 10px;
+        }
+        .filter-bar {
+            position: sticky;
+            top: 60px;
+            background: var(--card-bg);
+            padding: 10px 15px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            z-index: 90;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+        .filter-btn {
+            background: var(--background);
+            border: 1px solid var(--primary);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s, color 0.3s;
+        }
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+        .feed {
+            padding: 110px 10px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .video-card {
+            width: 100%;
+            max-width: 500px;
+            margin: 15px 0;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px var(--shadow);
+            transition: transform 0.3s ease;
+        }
+        .video-card:hover {
+            transform: scale(1.02);
+        }
+        .video-player {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+        }
+        .video-player video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 0%, var(--overlay) 100%);
+            display: flex;
+            align-items: flex-end;
+            padding: 15px;
+            pointer-events: none;
+        }
+        .video-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .video-desc {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+        }
+        .likes {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .heart {
+            width: 20px;
+            height: 20px;
+            fill: var(--primary);
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        .heart.liked {
+            opacity: 1;
+        }
+        .comment-btn {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .load-more {
+            padding: 20px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .load-more.show {
+            opacity: 1;
+        }
+        .load-more button {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.8rem;
+            color: var(--text);
+            opacity: 0.7;
+        }
+        .footer span {
+            color: var(--primary);
+        }
+        @media (max-width: 768px) {
+            .header {
+                padding: 8px 10px;
+            }
+            .logo {
+                font-size: 1.2rem;
+            }
+            .search input {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+            .social-icons a, .theme-toggle {
+                font-size: 1rem;
+            }
+            .filter-bar {
+                top: 50px;
+                padding: 8px 10px;
+            }
+            .filter-btn {
+                font-size: 0.75rem;
+                padding: 5px 10px;
+            }
+            .feed {
+                padding-top: 90px;
+            }
+            .video-card {
+                margin: 10px 0;
+                border-radius: 8px;
+            }
+            .video-title {
+                font-size: 1rem;
+            }
+            .video-desc {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">SlapSlop.Love</div>
+        <div class="search">
+            <input type="text" placeholder="Search videos..." id="searchInput">
+        </div>
+        <div class="social-icons">
+            <a href="https://x.com" target="_blank" aria-label="Twitter/X">🐦</a>
+            <a href="https://instagram.com" target="_blank" aria-label="Instagram">📷</a>
+            <a href="https://tiktok.com" target="_blank" aria-label="TikTok">🎵</a>
+        </div>
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+    </div>
+
+    <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" data-tag="all">All</button>
+        <button class="filter-btn" data-tag="Nature">Nature</button>
+        <button class="filter-btn" data-tag="Urban">Urban</button>
+        <button class="filter-btn" data-tag="Abstract">Abstract</button>
+    </div>
+
+    <div class="feed" id="feed">
+        <!-- Videos loaded dynamically -->
+    </div>
+
+    <div class="load-more" id="loadMore">
+        <button onclick="loadMoreVideos()">More SlapSlop</button>
+    </div>
+
+    <div class="footer">
+        Coded with <span>♥</span> by SlapSlop.Love Team
+    </div>
+
+    <script>
+        // Sample video data with tags
+        const videoTemplates = [
+            { title: "Coral Reef Dance", desc: "Vibrant underwater flow.", src: "https://github.com/manuwww/slapsloplove/blob/2c1b6e34ad5d454ef4bef504640d521ece5f919f/grok-video-160507f2-2cbd-4006-819e-0adb534e66a4.mp4", tags: ["Nature"] },
+            { title: "Neon City Pulse", desc: "https://github.com/manuwww/slapsloplove/blob/2c1b6e34ad5d454ef4bef504640d521ece5f919f/grok-video-1fe2585d-028a-459b-8fb2-9ec5d135409c%20(1).mp4", tags: ["Urban"] },
+            { title: "Teal Sunset", desc: "Dreamy horizon glow.", src: "https://github.com/manuwww/slapsloplove/blob/2c1b6e34ad5d454ef4bef504640d521ece5f919f/grok-video-207d8c82-0f1c-4a30-8acf-355da091cee4%20(4).mp4", tags: ["Nature"] },
+            { title: "Abstract Fluid Art", desc: "Colorful swirls in motion.", src: "https://github.com/manuwww/slapsloplove/blob/2c1b6e34ad5d454ef4bef504640d521ece5f919f/grok-video-29a8c350-3aea-4807-8bf4-dfcbf579a7be%20(3).mp4", tags: ["Abstract"] },
+            { title: "Street Skate Flow", desc: "Dynamic urban tricks.", src: "https://assets.mixkit.co/videos/preview/mixkit-man-skateboarding-in-the-city-125-large.mp4", tags: ["Urban"] },
+            { title: "Forest Whisper", desc: "Nature's calm embrace.", src: "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-nature-48296-large.mp4", tags: ["Nature"] },
+            { title: "Cozy Café Chat", desc: "Warm dialogue scene.", src: "https://assets.mixkit.co/videos/preview/mixkit-girl-typing-on-the-laptop-5695-large.mp4", tags: ["Urban"] },
+            { title: "Mountain Trek", desc: "Epic trail adventure.", src: "https://assets.mixkit.co/videos/preview/mixkit-portrait-of-a-woman-in-a-forest-398-large.mp4", tags: ["Nature"] }
+        ];
+
+        let videos = [...videoTemplates];
+        let likes = JSON.parse(localStorage.getItem('likes')) || {};
+        let currentTag = 'all';
+
+        function renderVideo(video) {
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            card.innerHTML = `
+                <div class="video-player">
+                    <video loop muted playsinline>
+                        <source src="${video.src}" type="video/mp4">
+                    </video>
+                    <div class="video-overlay">
+                        <div>
+                            <div class="video-title">${video.title}</div>
+                            <div class="video-desc">${video.desc}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="actions">
+                    <div class="likes" onclick="toggleLike('${video.title}')">
+                        <svg class="heart${likes[video.title] ? ' liked' : ''}" viewBox="0 0 24 24">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                        <span id="likeCount_${video.title}">${likes[video.title] || 0}</span>
+                    </div>
+                    <button class="comment-btn" onclick="openComments('${video.title}')">💬</button>
+                </div>
+            `;
+            const videoEl = card.querySelector('video');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) videoEl.play();
+                    else videoEl.pause();
+                });
+            }, { threshold: 0.5 });
+            observer.observe(card);
+            return card;
+        }
+
+        function renderFeed() {
+            const feed = document.getElementById('feed');
+            feed.innerHTML = '';
+            videos.forEach(video => feed.appendChild(renderVideo(video)));
+        }
+
+        function loadMoreVideos() {
+            const moreVideos = videoTemplates
+                .filter(v => currentTag === 'all' || v.tags.includes(currentTag))
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3);
+            videos.push(...moreVideos);
+            renderFeed();
+            document.getElementById('loadMore').classList.remove('show');
+        }
+
+        // Infinite scroll
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+                document.getElementById('loadMore').classList.add('show');
+            }
+        });
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            videos = videoTemplates.filter(v =>
+                (currentTag === 'all' || v.tags.includes(currentTag)) &&
+                (v.title.toLowerCase().includes(query) || v.desc.toLowerCase().includes(query))
+            );
+            renderFeed();
+        });
+
+        // Tag filter
+        document.getElementById('filterBar').addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                currentTag = e.target.dataset.tag;
+                videos = videoTemplates.filter(v => currentTag === 'all' || v.tags.includes(currentTag));
+                renderFeed();
+            }
+        });
+
+        // Like
+        function toggleLike(title) {
+            likes[title] = (likes[title] || 0) + 1;
+            localStorage.setItem('likes', JSON.stringify(likes));
+            document.getElementById(`likeCount_${title}`).textContent = likes[title];
+            const heart = event.target.closest('.likes').querySelector('.heart');
+            heart.classList.toggle('liked');
+        }
+
+        // Comments (placeholder)
+        function openComments(title) {
+            alert(`Comments for "${title}":\n- "So vibrant!"\n- "Love the colors!"\n(Add modal for real comments)`);
+        }
+
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        function setTheme(theme) {
+            document.body.dataset.theme = theme;
+            themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+            localStorage.setItem('theme', theme);
+        }
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.dataset.theme || 'light';
+            setTheme(currentTheme === 'light' ? 'dark' : 'light');
+        });
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+
+        // Initial render
+        renderFeed();
+    </script>
+</body>
+</html>
