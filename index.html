@@ -136,12 +136,12 @@
         .video-player {
             position: relative;
             width: 100%;
-            aspect-ratio: 16/9;
+            background: #000; /* Fallback for video loading */
         }
         .video-player video {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
+            object-fit: contain;
             display: block;
         }
         .video-overlay {
@@ -295,16 +295,16 @@
     </div>
 
     <script>
-        // Sample video data with tags
+        // Updated video data with your provided URLs, custom titles, descs, tags, and varied aspect ratios
         const videoTemplates = [
-            { title: "Coral Reef Dance", desc: "Vibrant underwater flow.", src: "https://manuwww.github.io/slapsloplove/grok-video-160507f2-2cbd-4006-819e-0adb534e66a4.mp4", tags: ["Nature"] },
-    
-            { title: "Teal Sunset", desc: "Dreamy horizon glow.", src: "https://manuwww.github.io/slapsloplove/grok-video-207d8c82-0f1c-4a30-8acf-355da091cee4%20(4).mp4", tags: ["Nature"] },
-            { title: "Abstract Fluid Art", desc: "Colorful swirls in motion.", src: "https://manuwww.github.io/slapsloplove/grok-video-29a8c350-3aea-4807-8bf4-dfcbf579a7be%20(3).mp4", tags: ["Abstract"] },
-            { title: "Street Skate Flow", desc: "Dynamic urban tricks.", src: "https://assets.mixkit.co/videos/preview/mixkit-man-skateboarding-in-the-city-125-large.mp4", tags: ["Urban"] },
-            { title: "Forest Whisper", desc: "Nature's calm embrace.", src: "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-nature-48296-large.mp4", tags: ["Nature"] },
-            { title: "Cozy Café Chat", desc: "Warm dialogue scene.", src: "https://assets.mixkit.co/videos/preview/mixkit-girl-typing-on-the-laptop-5695-large.mp4", tags: ["Urban"] },
-            { title: "Mountain Trek", desc: "Epic trail adventure.", src: "https://assets.mixkit.co/videos/preview/mixkit-portrait-of-a-woman-in-a-forest-398-large.mp4", tags: ["Nature"] }
+            { title: "Mystic Forest Echoes", desc: "Whispers through ancient trees in golden light.", src: "https://manuwww.github.io/slapsloplove/grok-video-ffbc81eb-8eb8-4f3e-bf87-a9d723ff724f%20(1).mp4", tags: ["Nature"], aspectRatio: "16:9" },
+            { title: "Urban Pulse Drift", desc: "Neon streets alive with rhythmic flow.", src: "https://manuwww.github.io/slapsloplove/grok-video-f86eb0ee-cd6c-4c3c-9cb6-95f1c6225250%20(2).mp4", tags: ["Urban"], aspectRatio: "4:3" },
+            { title: "Abstract Wave Symphony", desc: "Colors dancing in fluid harmony.", src: "https://manuwww.github.io/slapsloplove/grok-video-f134ad5a-e6e8-4bfd-8d4e-709b6541639e.mp4", tags: ["Abstract"], aspectRatio: "9:16" },
+            { title: "Coastal Dream Surge", desc: "Waves crashing under eternal sunset.", src: "https://manuwww.github.io/slapsloplove/grok-video-471a0246-f7d0-4ae4-8552-7e64e9931d35.mp4", tags: ["Nature"], aspectRatio: "16:9" },
+            { title: "City Skyline Flux", desc: "Skyscrapers breathing in the night.", src: "https://manuwww.github.io/slapsloplove/grok-video-29a8c350-3aea-4807-8bf4-dfcbf579a7be%20(3).mp4", tags: ["Urban"], aspectRatio: "4:3" },
+            { title: "Ethereal Color Vortex", desc: "Swirling patterns of infinite depth.", src: "https://manuwww.github.io/slapsloplove/grok-video-207d8c82-0f1c-4a30-8acf-355da091cee4%20(4).mp4", tags: ["Abstract"], aspectRatio: "9:16" },
+            { title: "Riverbank Serenity", desc: "Gentle currents reflecting starry skies.", src: "https://manuwww.github.io/slapsloplove/grok-video-1fe2585d-028a-459b-8fb2-9ec5d135409c%20(1).mp4", tags: ["Nature"], aspectRatio: "16:9" },
+            { title: "Street Echo Mirage", desc: "Fading lights in endless alleyways.", src: "https://manuwww.github.io/slapsloplove/grok-video-160507f2-2cbd-4006-819e-0adb534e66a4.mp4", tags: ["Urban"], aspectRatio: "4:3" }
         ];
 
         let videos = [...videoTemplates];
@@ -314,8 +314,9 @@
         function renderVideo(video) {
             const card = document.createElement('div');
             card.className = 'video-card';
+            // Apply dynamic aspect ratio to video player
             card.innerHTML = `
-                <div class="video-player">
+                <div class="video-player" style="aspect-ratio: ${video.aspectRatio}">
                     <video loop muted playsinline>
                         <source src="${video.src}" type="video/mp4">
                     </video>
@@ -426,4 +427,3 @@
     </script>
 </body>
 </html>
-
